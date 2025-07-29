@@ -348,9 +348,8 @@ def get_tool(tool, force_download, force_extract):
             urlretrieve(url, local_path, report_progress, context=ctx)
         elif "Windows" in sys_name:
             r = requests.get(url)
-            f = open(local_path, "wb")
-            f.write(r.content)
-            f.close()
+            with open(local_path, "wb") as f:
+                f.write(r.content)
         else:
             is_ci = os.environ.get("GITHUB_WORKSPACE")
             if is_ci:
@@ -374,7 +373,8 @@ def get_tool(tool, force_download, force_extract):
 
 
 def load_tools_list(filename, platform):
-    tools_info = json.load(open(filename))["packages"][0]["tools"]
+    with open(filename, "r") as f:
+        tools_info = json.load(f)["packages"][0]["tools"]
     tools_to_download = []
     for t in tools_info:
         if platform == "x86_64-mingw32":

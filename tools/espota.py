@@ -94,7 +94,8 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
         return 1
 
     content_size = os.path.getsize(filename)
-    file_md5 = hashlib.md5(open(filename, "rb").read()).hexdigest()
+    with open(filename, "rb") as f:
+        file_md5 = hashlib.md5(f.read()).hexdigest()
     logging.info("Upload size: %d", content_size)
     message = "%d %d %d %s\n" % (command, local_port, content_size, file_md5)
 
@@ -163,6 +164,7 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
     sock2.close()
 
     logging.info("Waiting for device...")
+
     try:
         sock.settimeout(10)
         connection, client_address = sock.accept()
@@ -172,6 +174,7 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
         logging.error("No response from device")
         sock.close()
         return 1
+
     try:
         with open(filename, "rb") as f:
             if PROGRESS:
@@ -225,7 +228,8 @@ def serve(remote_addr, local_addr, remote_port, local_port, password, filename, 
             logging.error("Error response from device")
             connection.close()
             return 1
-
+    except Exception as e:  # noqa: E722
+        logging.error("Error: %s", str(e))
     finally:
         connection.close()
 
