@@ -42,7 +42,8 @@ def get_interface_ips():
                             if ip not in interface_ips and ip != '127.0.0.1':
                                 interface_ips.append(ip)
     except (subprocess.TimeoutExpired, subprocess.SubprocessError, FileNotFoundError):
-        pass
+        print("Error: Failed to get interface IPs using system commands")
+        print("Trying fallback methods...")
 
     # Fallback: try to get IPs using socket methods
     if not interface_ips:
@@ -54,7 +55,7 @@ def get_interface_ips():
                 if ip not in interface_ips and ip != '127.0.0.1':
                     interface_ips.append(ip)
         except socket.gaierror:
-            pass
+            print("Error: Failed to get interface IPs using sockets")
 
     # Fail if no interfaces found
     if not interface_ips:
